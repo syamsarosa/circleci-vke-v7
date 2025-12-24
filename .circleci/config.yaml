@@ -1,0 +1,46 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: docker image build -t syamsarosa/circleci-vke:$CIRCLE_SHA1 .
+      - run:
+          name: Login to Docker CLI
+          command: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - run:
+          name: Push the Docker image to Docker Hub registry
+          command: docker push syamsarosa/circleci-vke:$CIRCLE_SHA1
+
+  deploy:
+    docker:
+      - image: lachlanevenson/k8s-kubectl
+    steps:
+      - checkout
+      - run:
+         name: Install envsubst
+         command: apk add --no-cache gettext
+      - run:
+          name: Decode kubeconfig
+          command: printf "%s" "$KUBECONFIG_BASE64" | base64 -d > kubeconfig
+      - run:
+          name: Apply deployment.yaml with dynamic SHA1
+          command: |
+            export IMAGE_TAG=$CIRCLE_SHA1
+            envsubst < ./deployment.yaml | KUBECONFIG=$(pwd)/kubeconfig kubectl apply -f -
+      - run:
+          name: Apply service.yaml
+          command: KUBECONFIG=$(pwd)/kubeconfig kubectl apply -f service.yaml
+
+workflows:
+  deploy_circleci_vke:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build

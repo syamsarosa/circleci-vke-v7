@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleci-vke
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleci-vke
+  template:
+    metadata:
+      labels:
+        app: circleci-vke
+    spec:
+      containers:
+        - name: circleci-vke
+          image: syamsarosa/circleci-vke:$IMAGE_TAG
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
