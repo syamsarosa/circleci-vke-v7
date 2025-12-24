@@ -29,13 +29,13 @@ jobs:
           name: Decode kubeconfig
           command: printf "%s" "$KUBECONFIG_BASE64" | base64 -d > kubeconfig
       - run:
-          name: Apply deployment.yaml with dynamic SHA1
+          name: Apply deployment.yml with dynamic SHA1
           command: |
             export IMAGE_TAG=$CIRCLE_SHA1
-            envsubst < ./deployment.yaml | KUBECONFIG=$(pwd)/kubeconfig kubectl apply -f -
+            envsubst < ./deployment.yml | KUBECONFIG=$(pwd)/kubeconfig kubectl apply -f -
       - run:
-          name: Apply service.yaml
-          command: KUBECONFIG=$(pwd)/kubeconfig kubectl apply -f service.yaml
+          name: Apply service.yml
+          command: KUBECONFIG=$(pwd)/kubeconfig kubectl apply -f service.yml
 
 workflows:
   deploy_circleci_vke:
