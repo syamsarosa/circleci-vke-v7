@@ -5,5 +5,6 @@
 </head>
 <body>
   <h1><?php echo "Hello from Vultr"; ?></h1>
+  <p><?php echo "Test deployment"; ?></p>
 </body>
 </html>
